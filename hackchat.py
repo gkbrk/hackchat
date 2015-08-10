@@ -8,6 +8,7 @@ class HackChat:
 
         self.on_message = []
         self.on_join = []
+        self.on_leave = []
 
         self.ws = websocket.create_connection("wss://hack.chat/chat-ws")
         self.ws.send(json.dumps({"cmd": "join", "channel": channel, "nick": nick}))
@@ -19,6 +20,9 @@ class HackChat:
                 handler(self, result["text"], result["nick"])
         elif result["cmd"] == "onlineAdd":
             for handler in list(self.on_join):
+                handler(self, result["nick"])
+        elif result["cmd"] == "onlineRemove":
+            for handler in list(self.on_leave):
                 handler(self, result["nick"])
         return result
 
