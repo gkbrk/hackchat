@@ -6,7 +6,7 @@ class HackChat:
         self.nick = nick
         self.channel = channel
 
-        self.online_users = set()
+        self.online_users = []
 
         self.on_message = []
         self.on_join = []
@@ -21,11 +21,11 @@ class HackChat:
             for handler in list(self.on_message):
                 handler(self, result["text"], result["nick"])
         elif result["cmd"] == "onlineAdd":
-            self.online_users.append(nick)
+            self.online_users.append(result["nick"])
             for handler in list(self.on_join):
                 handler(self, result["nick"])
         elif result["cmd"] == "onlineRemove":
-            self.online_users.remove(nick)
+            self.online_users.remove(result["nick"])
             for handler in list(self.on_leave):
                 handler(self, result["nick"])
         elif result["cmd"] == "onlineSet":
