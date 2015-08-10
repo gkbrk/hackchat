@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
     name = "hackchat",
     py_modules = ["hackchat"],
-    version = "0.1.2",
+    version = "0.1.3",
     description = "An event-driven hack.chat client library.",
     author = "Gokberk Yaltirakli",
     author_email = "webdosusb@gmail.com",
