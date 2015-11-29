@@ -1,5 +1,7 @@
 import json
+import time
 import websocket
+import threading
 
 class HackChat:
     def __init__(self, nick, channel="programming"):
@@ -39,3 +41,11 @@ class HackChat:
 
     def send_message(self, msg):
         self.ws.send(json.dumps({"cmd": "chat", "text": msg}))
+
+    def _ping_thread(self):
+        while self.ws.connected:
+            self.ws.send(json.dumps({"cmd": "ping"}))
+            time.sleep(60)
+
+    def start_ping_thread(self):
+        threading.Thread(target=self._ping_thread).start()
