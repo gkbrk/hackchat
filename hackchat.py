@@ -17,7 +17,7 @@ class HackChat:
         self.ws = websocket.create_connection("wss://hack.chat/chat-ws")
         self.send_packet({"cmd": "join", "channel": channel, "nick": nick})
 
-    def send_packet(packet):
+    def send_packet(self, packet):
         encoded = json.dumps(packet)
         self.ws.send(encoded)
 
