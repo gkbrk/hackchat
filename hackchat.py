@@ -3,6 +3,7 @@ import threading
 import time
 import websocket
 
+
 class HackChat:
     """A library to connect to https://hack.chat.
 
@@ -29,7 +30,7 @@ class HackChat:
         self.on_leave = []
         self.ws = websocket.create_connection("wss://hack.chat/chat-ws")
         self._send_packet({"cmd": "join", "channel": channel, "nick": nick})
-        threading.Thread(target = self._ping_thread).start()
+        threading.Thread(target=self._ping_thread).start()
 
     def send_message(self, msg):
         """Sends a message on the channel."""
@@ -58,6 +59,17 @@ class HackChat:
             elif result["cmd"] == "onlineSet":
                 for nick in result["nicks"]:
                     self.online_users.append(nick)
+
+    def move(self, new_channel):
+        self.channel = new_channel
+        self._send_packet({"cmd": "move", "channel": new_channel})
+
+    def change_nick(self, new_nick):
+        self.nick = new_nick
+        self._send_packet({"cmd": "changenick", "nick": new_nick})
+
+    def send_to(self, target, msg):
+        self._send_packet({"cmd": "whisper", "nick": target, "text": msg})
 
     def _ping_thread(self):
         """Retains the websocket connection."""
