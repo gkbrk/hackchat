@@ -26,6 +26,7 @@ class HackChat:
         self.channel = channel
         self.online_users = []
         self.on_message = []
+        self.on_whisper = []
         self.on_join = []
         self.on_leave = []
         self.ws = websocket.create_connection("wss://hack.chat/chat-ws")
@@ -36,10 +37,25 @@ class HackChat:
         """Sends a message on the channel."""
         self._send_packet({"cmd": "chat", "text": msg})
 
+    def send_to(self, target, msg):
+        self._send_packet({"cmd": "whisper", "nick": target, "text": msg})
+
+    def move(self, new_channel):
+        self.channel = new_channel
+        self._send_packet({"cmd": "move", "channel": new_channel})
+
+    def change_nick(self, new_nick):
+        self.nick = new_nick
+        self._send_packet({"cmd": "changenick", "nick": new_nick})
+
     def _send_packet(self, packet):
         """Sends <packet> (<dict>) to https://hack.chat."""
         encoded = json.dumps(packet)
         self.ws.send(encoded)
+
+    def daemon(self):
+        self.daemon_thread=threading.Thread(target=self.run)
+        self.daemon_thread.start()
 
     def run(self):
         """Sends data to the callback functions."""
@@ -59,17 +75,9 @@ class HackChat:
             elif result["cmd"] == "onlineSet":
                 for nick in result["nicks"]:
                     self.online_users.append(nick)
-
-    def move(self, new_channel):
-        self.channel = new_channel
-        self._send_packet({"cmd": "move", "channel": new_channel})
-
-    def change_nick(self, new_nick):
-        self.nick = new_nick
-        self._send_packet({"cmd": "changenick", "nick": new_nick})
-
-    def send_to(self, target, msg):
-        self._send_packet({"cmd": "whisper", "nick": target, "text": msg})
+            elif result["cmd"]=="info" and result["type"]=="whisper":
+                for handler in list(self.on_whisper):
+                    handler(self,result["text"],result["from"],result)
 
     def _ping_thread(self):
         """Retains the websocket connection."""
