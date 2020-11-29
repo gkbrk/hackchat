@@ -75,7 +75,7 @@ class HackChat:
             elif result["cmd"] == "onlineSet":
                 for nick in result["nicks"]:
                     self.online_users.append(nick)
-            elif result["cmd"]=="info" and result["type"]=="whisper":
+            elif result["cmd"] == "info" and result.get("type") == "whisper":
                 for handler in list(self.on_whisper):
                     handler(self,result["text"],result["from"],result)
 
